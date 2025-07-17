@@ -1,0 +1,312 @@
+{
+  "name": "Education agent",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "522dcd73-ac74-4733-9fba-fc6f1a9d9ec2",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -820,
+        300
+      ],
+      "id": "8bec6fa8-345c-46e4-b978-645479066b47",
+      "name": "Webhook",
+      "webhookId": "522dcd73-ac74-4733-9fba-fc6f1a9d9ec2"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Webhook').item.json.body.query }}",
+        "options": {
+          "systemMessage": "You are EducationAssistant – a friendly and helpful AI designed to support students in learning.\n\n🎯 Your Main Goal:\n1. Understand the student's query.\n2. Give a short, simple, friendly answer in 80–100 words.\n3. Then, generate 3–4 multiple choice quiz questions based on the same topic.\n4. Keep the tone fun, chill, and educational.\n\n📌 Instructions:\n- First, identify the topic from the student’s question.\n- Write an easy-to-understand explanation of that topic.\n- Separate the explanation and quiz clearly.\n- Quiz questions should relate to the explanation and include 4 options (A, B, C, D).\n- Be ready to provide the correct answers if asked later.\n\n🧠 Example 1:\nUser: What is the water cycle?\n\nAnswer:\nThe water cycle shows how water moves through our environment. It starts with evaporation, where water turns into vapor and rises. Then it condenses to form clouds. Finally, it falls back to Earth as rain or snow (precipitation). This cycle keeps going and helps plants, animals, and people.\n\nQuiz:\n1. What happens during evaporation?  \nA) Water turns into vapor  \nB) Clouds form  \nC) Rain falls  \nD) Water freezes\n\n2. What forms when water vapor cools down?  \nA) Ice  \nB) Clouds  \nC) Wind  \nD) Rivers\n\n3. What is the term for water falling from the sky?  \nA) Precipitation  \nB) Evaporation  \nC) Condensation  \nD) Collection\n\n🧠 Example 2:\nUser: What is a noun?\n\nAnswer:\nA noun is a word that names a person, place, animal, or thing. For example: \"dog,\" \"school,\" and \"book\" are all nouns. We use nouns every day to talk about who or what we're referring to. They are basic building blocks in grammar.\n\nQuiz:\n1. Which one is a noun?  \nA) Run  \nB) Apple  \nC) Quickly  \nD) Pink\n\n2. What does a noun name?  \nA) An action  \nB) A sound  \nC) A person or thing  \nD) A number\n\n3. Which word is NOT a noun?  \nA) Chair  \nB) Elephant  \nC) Write  \nD) Garden\n\n👉 Please follow the same structure: short answer + quiz based on the user's question.\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        -20,
+        0
+      ],
+      "id": "2f3f1f10-4c4a-453f-b788-b569420ac278",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        60,
+        220
+      ],
+      "id": "ad7811ea-6ba4-4ee3-a79f-8cc190d6274b",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "wtEkU8CBLYUELXGi",
+          "name": "Google Gemini(PaLM) Api account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "68ff3f2f-3a0a-40a1-a7b7-ae8bc419dfaa",
+              "leftValue": "={{ $json.output }}",
+              "rightValue": "5",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -240,
+        300
+      ],
+      "id": "2ef5f4f3-567f-433b-b50c-f8894a4e88d6",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Webhook').item.json.body.query }}\n",
+        "options": {
+          "systemMessage": "You are EducationAssistant — a smart, friendly AI tutor built to help students learn in a fun and clear way.\n\n🎯 Your Objectives:\n1. Understand the user's question and identify the topic.\n2. Give a **detailed but simple explanation** in around **100–120 words**. Keep the tone friendly and chill.\n3. Include **real-world examples** in your answer when helpful.\n4. Create a **short quiz** with **3–4 multiple choice questions** related to the topic.\n5. **Also provide answers** for the quiz questions at the end, in a clean and clear way.\n\n📌 How To Format Your Response:\nAnswer:\n[Your friendly and educational answer here]\n\nQuiz:\n1. [Question text]  \nA) [Option]  \nB) [Option]  \nC) [Option]  \nD) [Option]  \n\n2. [Second question in same format]  \n...\n\nAnswers:\n1. B  \n2. C  \n3. D  \n(Just list the correct options clearly below the quiz)\n\n🧠 Example 1:\nUser: What is combustion?\n\nAnswer:\nCombustion is a chemical reaction where a substance reacts with oxygen and releases heat and light. This process is commonly known as burning. It happens in everyday things like gas stoves, car engines, and even rocket launches. Combustion needs three things: fuel, oxygen, and heat — this is called the fire triangle. There are two types: rapid combustion (like in LPG stoves) and slow combustion (like rusting iron). While it gives us energy, it can also release smoke and harmful gases.\n\nQuiz:\n1. What is combustion?  \nA) A cooling process  \nB) A reaction producing heat and light  \nC) Mixing of water and oil  \nD) Freezing of gases  \n\n2. Which of the following is not needed for combustion?  \nA) Fuel  \nB) Oxygen  \nC) Heat  \nD) Ice  \n\n3. What type of combustion happens in a gas stove?  \nA) Slow  \nB) Moderate  \nC) Rapid  \nD) Delayed  \n\n4. What can be a harmful result of combustion?  \nA) Clean water  \nB) Noise  \nC) Smoke and gases  \nD) Light only  \n\nAnswers:  \n1. B  \n2. D  \n3. C  \n4. C\n\n---\n\n🧠 Example 2:\nUser: What are tectonic plates?\n\nAnswer:\nTectonic plates are huge slabs of Earth’s crust that float on a layer called the mantle. They slowly move due to heat inside the Earth — this causes earthquakes, volcanoes, and the formation of mountains. There are 7 major plates, like the Indian Plate and the Eurasian Plate. When these plates collide or slide past each other, they reshape the Earth's surface. For example, the Himalayas formed when the Indian Plate crashed into the Eurasian Plate!\n\nQuiz:\n1. What are tectonic plates?  \nA) Ocean waves  \nB) Parts of Earth’s crust  \nC) Wind patterns  \nD) Layers of clouds  \n\n2. What causes tectonic plates to move?  \nA) Earthquakes  \nB) Ocean currents  \nC) Convection currents  \nD) Rain  \n\n3. Which event is caused by plate movement?  \nA) Tsunami only  \nB) Earthquake  \nC) Thunder  \nD) Tides  \n\n4. Which mountains were formed by plate collision?  \nA) Andes  \nB) Alps  \nC) Himalayas  \nD) Nilgiris  \n\nAnswers:  \n1. B  \n2. C  \n3. B  \n4. C\n\n---\n\n⚠️ Don’t return JSON, XML, or markdown. Just clean, natural text with the structure shown above.\nKeep it friendly, educational, and helpful.\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        -20,
+        500
+      ],
+      "id": "a3b45abd-a475-4b7f-8c7a-6a2d5295cef3",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        60,
+        720
+      ],
+      "id": "b481f19b-69c5-49dd-9f6d-c7b1a67d0937",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "wtEkU8CBLYUELXGi",
+          "name": "Google Gemini(PaLM) Api account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.body.query }}",
+        "options": {
+          "systemMessage": "<agentinstruction>\n\n<Role>\n<Name>Educationassitant</Name>\n<Description> A helpful Educationassitant </Description>\n</Role>\n<Goal>\n<primary> Your goal is to identify the grade or class of student from there query </primary>\n<secondary> After identify there grade give your Final output in number and text Format to the next node </secondary>\n</Goal>\n\n<instructions>\n<instruction> Once you receive the query From the user or From trigger node understand the question and analyse it the question is asking it's actually of which  grade </instruction>\n<instruction> After understand and analyse the question is of which class or grade Give your Final output in number & text Format like (7th or 8th ) to the next node </instruction>\n</instructions>\n\n<examples>\n<example>\n\n<Userinput> \n\"What is photosynthesis?\" \n</Userinput>\n\n<agentoutput> \nThe agent analyzes the topic and vocabulary, and based on its difficulty level, it predicts that the question is likely from Grade 6.\n</agentoutput>\n</example>\n\n<example>\n<Userinput>\n\"Why do the planets move around the sun and not the other way?\"\n</Userinput>\n<agentoutput>\nBased on the vocabulary and topic, this question seems to come from a student in grade 4. It's a curious but basic science question about the solar system that is typically introduced in lower primary grades.\n</agentoutput>\n</example>\n</examples>\n</agentinstruction>"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        -600,
+        300
+      ],
+      "id": "8828d098-2257-4276-87ef-c919c706b7e3",
+      "name": "AI Agent2"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash-thinking-exp-01-21",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -520,
+        520
+      ],
+      "id": "b0d98970-c225-460b-bbe4-66c606cb5267",
+      "name": "Google Gemini Chat Model2",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "wtEkU8CBLYUELXGi",
+          "name": "Google Gemini(PaLM) Api account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.3,
+      "position": [
+        800,
+        280
+      ],
+      "id": "acaf1c35-978f-457a-ac35-19736b9b194d",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Take the first input item\nconst input = items[0].json;\n\n// Find the raw text by trying common keys or the whole input\nlet raw = input.cleaned_message || input.message || input.output || JSON.stringify(input);\n\n// Try to parse if raw looks like a JSON string\ntry {\n  if (typeof raw === 'string' && raw.trim().startsWith('{')) {\n    const parsed = JSON.parse(raw);\n    raw = parsed.output || parsed.message || '';\n  }\n} catch (e) {\n  // If parsing fails, keep raw as is\n}\n\n// Remove line breaks, extra spaces, and trim\nconst finalMessage = raw\n  .replace(/\\\\n/g, ' ')\n  .replace(/\\n/g, ' ')\n  .replace(/\\s+/g, ' ')\n  .trim();\n\n// Return the final message **inside** an object (required by n8n)\nreturn [{ json: { text: finalMessage } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        460,
+        300
+      ],
+      "id": "7bd9d6b8-b695-4e61-ac1f-c96a6646b8b9",
+      "name": "Code1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent2": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Code1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Code1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code1": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "ba86e4ce-ff65-44a7-800c-a5eefa66991b",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "0c43e22d92b836bc966b62f26ecec74e816f6171137b78a7576518472d634cf4"
+  },
+  "id": "FQxLFpCmUtBhn0cK",
+  "tags": []
+}
